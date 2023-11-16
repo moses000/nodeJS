@@ -1,3 +1,14 @@
+/* A load balancer is an application that distribute request to different machine [CPU core] 
+ 
+ * There are several method to achieving load balancing in an application. 
+ * Also, note that load balancing is different from server clustering.
+ * 1. Using cluster module
+ * 2. Nginx and Haproxy 
+ * 3. Using express
+  
+ * In this simple and basic application, cluster module will be used because it is good for horizontal scaling or scale out. A sample application to test is the generation of an RSA key [encryption algotithm] using express and crypto module
+*/
+
 const express = require('express');
 const cluster = require('cluster');
 const { generateKeyPair } = require('crypto');
