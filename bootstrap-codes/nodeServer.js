@@ -2,12 +2,14 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const EventEmitter = require('events');
+const util = require('util');
 
 class NodeServer extends EventEmitter {
   // Constructor for the NodeServer class
-  constructor(port = 5000, startMethod = 'startServer_callback') {
+  constructor(port = 5000, startMethod = 'startServer_callback', baseFile = 'index.html') {
     super();  // Call the constructor of the EventEmitter class
     this.port = port;  // Set the port property
+    this.baseFile = baseFile;  // Set the base file property
 
     // Determine the start method dynamically
     if (startMethod === 'startServer_callback') {
@@ -46,15 +48,20 @@ class NodeServer extends EventEmitter {
 
   // Method to handle HTTP requests
   handleRequest(req, res) {
+    // console.log(util.inspect(req, { depth: 0 }));
     const fileExtension = path.extname(req.url).slice(1);
-    fs.readFile(`.${req.url}`, (err, data) => {
-      if (err) {
-        this.handleError(res);
-      } else {
-        const contentType = this.getContentType(fileExtension);
-        this.sendResponse(res, data, contentType);
-      }
-    });
+    const requestedFile = req.url === '/' ? `/${this.baseFile}` : req.url;
+    // console.log(requestedFile)
+    if(requestedFile !== '/favicon.ico'){
+      fs.readFile(`.${requestedFile}`, (err, data) => {
+        if (err) {
+          this.handleError(res);
+        } else {
+          const contentType = this.getContentType(fileExtension);
+          this.sendResponse(res, data, contentType);
+        }
+      });
+    }
   }
 
   // Method to handle errors and send a generic 500 Internal Server Error response
