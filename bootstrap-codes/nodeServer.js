@@ -1,36 +1,101 @@
 const http = require("http");
+const fs = require("fs");
+const path = require("path");
+const EventEmitter = require('events');
 
-class NodeServer {
-  // This method starts the server using a callback function. It listens on the specified port; the default is 5000.
-  constructor(port = 5000, toStart = 'startServer_callback') {
-    this.port = port;
-    toStart ? this.startServer_callback() : this.startServer_event();
+class NodeServer extends EventEmitter {
+  // Constructor for the NodeServer class
+  constructor(port = 5000, startMethod = 'startServer_callback') {
+    super();  // Call the constructor of the EventEmitter class
+    this.port = port;  // Set the port property
+
+    // Determine the start method dynamically
+    if (startMethod === 'startServer_callback') {
+      this.createServerCallback();  // Start server using callback method
+    } else if (startMethod === 'startServer_event') {
+      this.createServerEvent();  // Start server using event method
+    } else {
+      throw new Error('Invalid startMethod. Use "startServer_callback" or "startServer_event".');
+    }
   }
 
-  // This method starts a server using an event listener. It listens on the specified port; the default is 8000.
-  startServer_event() {
-    http.createServer().on('request', (request, res) => {
-      res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ data: "This is a bootstrap code to start a simple server using an event listener" }));
-    }).listen(this.port, () => {
-      console.log(`Server listening on port ${this.port} using an event listener.`);
+  // Method to create server using callback approach
+  createServerCallback() {
+    const server = http.createServer(this.handleRequest.bind(this));
+    
+    // Start the server and emit 'listening' event
+    server.listen(this.port, () => {
+      this.emit('listening', this.port, 'callback');
     });
   }
 
-  // This method starts the server using a callback function. It listens on the specified port; the default is 5000.
-  startServer_callback() {
-    http.createServer((req, res) => {
-      res.writeHead(200, { 'content-type': 'application/json' });
-      res.end(JSON.stringify({ data: "This is a bootstrap code to start a simple server using a callback" }));
-    }).listen(this.port, () => {
-      console.log(`Server listening on port ${this.port} using a callback function.`);
+  // Method to create server using event-driven approach
+  createServerEvent() {
+    const server = http.createServer();
+
+    // Event listener for the 'request' event
+    server.on('request', (req, res) => {
+      this.handleRequest(req, res);
     });
+
+    // Start the server and emit 'listening' event
+    server.listen(this.port, () => {
+      this.emit('listening', this.port, 'event');
+    });
+  }
+
+  // Method to handle HTTP requests
+  handleRequest(req, res) {
+    const fileExtension = path.extname(req.url).slice(1);
+    fs.readFile(`.${req.url}`, (err, data) => {
+      if (err) {
+        this.handleError(res);
+      } else {
+        const contentType = this.getContentType(fileExtension);
+        this.sendResponse(res, data, contentType);
+      }
+    });
+  }
+
+  // Method to handle errors and send a generic 500 Internal Server Error response
+  handleError(res) {
+    res.writeHead(500, { 'content-type': 'text/html' });
+    res.end('<html><body><h1>Internal Server Error</h1></body></html>');
+  }
+
+  // Method to get the content type based on file extension
+  getContentType(fileExtension) {
+    switch (fileExtension) {
+      case 'css':
+        return 'text/css';
+      case 'js':
+        return 'text/javascript';
+      default:
+        return 'text/html';
+    }
+  }
+
+  // Method to send an HTTP response with specified content type
+  sendResponse(res, data, contentType) {
+    res.writeHead(200, { 'content-type': contentType });
+    res.end(data);
   }
 }
 
-// Check if the script is the main module being run
+// Code to run when this script is executed directly
 if (require.main === module) {
-  const startServer = new NodeServer(5000);
+  const startServerCallback = new NodeServer(5000, 'startServer_callback');
+  const startServerEvent = new NodeServer(5001, 'startServer_event');
+
+  // Listen for the 'listening' event and log a message
+  startServerCallback.on('listening', (port, method) => {
+    console.log(`Server listening on port ${port} using ${method}-driven approach.`);
+  });
+
+  startServerEvent.on('listening', (port, method) => {
+    console.log(`Server listening on port ${port} using ${method}-driven approach.`);
+  });
 }
 
+// Export the NodeServer class for use in other modules
 module.exports = NodeServer;
