@@ -1,0 +1,33 @@
+{
+  "name": "nodejs_server",
+  "version": "1.0.0",
+  "description": "This Node.js server class, named NodeServer, provides a flexible and extensible solution for serving static files. It supports both callback and event-driven approaches for handling HTTP requests. The class allows dynamic configuration of the server's port, startup method, and a base file to serve when the root URL is accessed. It incorporates error handling, preventing the server from attempting to read a favicon.ico file and responding with a generic 500 Internal Server Error in case of file read errors. The code is well-documented, follows best practices, and includes event-driven logging for easy integration into other applications.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",  
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moses000/nodeJs.git#main"
+  },
+  "keywords": [
+    "Node",
+    "Bootstrap",
+    "codes",
+    "Goto",
+    "Code"
+  ],
+  "author": "Imoleayo Moses",
+  "license": "Apache License",
+  "bugs": {
+    "url": "https://github.com/moses000/nodeJs/issues"
+  },
+  "homepage": "https://github.com/moses000/nodeJS/blob/main/bootstrap-codes/nodeJS-Server/ReadMe.md",
+  "dependencies": {
+    
+  },
+  "engines": {
+    "node": ">=14.0.0"  
+  }
+}
