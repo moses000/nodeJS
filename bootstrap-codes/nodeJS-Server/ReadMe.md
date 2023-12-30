@@ -55,13 +55,13 @@ serverEvent.on('listening', (port, method) => {
 If using NodeServer as a package, ensure it is installed using npm:
 
 ```bash
-npm install nodeserver-package
+npm install nodejs_server
 ```
 
 Then, you can import and use it in your project:
 
 ```javascript
-const NodeServer = require('nodeserver-package');
+const NodeServer = require('nodejs_server');
 // ... (rest of the code remains the same)
 ```
 
